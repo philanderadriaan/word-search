@@ -1,4 +1,15 @@
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map.Entry;
+
 /**
  * <p>
  * There is a well-known puzzle called Word Search that involves looking for
@@ -28,46 +39,85 @@
 public class Main
 {
 
+    private static final String INPUT_FILE_NAME = "input.in";
+
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args)
+    public static void main(String[] args) throws FileNotFoundException, IOException
     {
-        // TODO code application logic here
+        String[] input = readInput(INPUT_FILE_NAME);
+        List<Entry<char[][], String>> cases = getCases(input);
+        search(cases);
+
+        //map test cases
+        //for each test case
+        // search 1st char
+        // search all 8 directions
     }
 
-    private static void search(Object... input)
+    private static String[] readInput(String file_name) throws FileNotFoundException, IOException
     {
-        try
+        BufferedReader buffered_reader = new BufferedReader(new FileReader(new File(file_name)));
+        List<String> input_list = new ArrayList();
+        String line = buffered_reader.readLine();
+        while (line != null)
         {
-            int t = (Integer) input[0];
-            if (t < 0 || t > 100)
-            {
-                System.out.println("T out of range. 1 ≤ T ≤ 100");
-            }
-            else
-            {
-                int test_case = 1;
-                int i = 1;
-                while (i < input.length)
-                {
-                    int row = (Integer) input[i];
-                    i++;
-                    int column = (Integer) input[i];
-                    i++;
+            input_list.add(line);
+            line = buffered_reader.readLine();
+        }
+        return input_list.toArray(new String[input_list.size()]);
+    }
 
-                    char[][] grid = new char[row][];
-                    for (int j = 0; j < row; j++)
-                    {
-                        grid[j] = ((String) input[i]).toCharArray();
-                    }
+    private static List<Entry<char[][], String>> getCases(String[] input)
+    {
+        List<Entry<char[][], String>> case_list = new ArrayList();
+        int t = Integer.parseInt(input[0]);
+        if (t < 0 || t > 100)
+        {
+            System.out.println("T out of range. 1 ≤ T ≤ 100");
+        }
+        else
+        {
+            int i = 1;
+            while (i < input.length)
+            {
+                int row = Integer.parseInt(input[i]);
+                i++;
+                int column = Integer.parseInt(input[i]);
+                i++;
+                char[][] grid = new char[row][column];
+                for (int j = 0; j < row; j++)
+                {
+                    grid[j] = input[i].toCharArray();
+                    i++;
                 }
+
+                String word = input[i];
+                i++;
+                case_list.add(new SimpleEntry(grid, word));
             }
         }
-        catch (Exception exception)
+
+        return case_list;
+    }
+
+    private static void search(List<Entry<char[][], String>> cases)
+    {
+        int case_number = 1;
+
+        for (Entry<char[][], String> i : cases)
         {
-            System.out.println(exception.getMessage());
+            System.out.println("Case: " + case_number);
+            for (char[] j : i.getKey())
+            {
+                System.out.println(Arrays.toString(j));
+            }
+            System.out.println("Word: " + i.getValue());
+            System.out.println();
+
         }
+
     }
 
 }
