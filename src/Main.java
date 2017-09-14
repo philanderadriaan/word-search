@@ -6,7 +6,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -42,20 +41,30 @@ public class Main
     private static final String INPUT_FILE_NAME = "input.in";
 
     /**
-     * @param args the command line arguments
+     * Starts the program.
+     *
+     * @param args Command line argument.
+     *
+     * @throws FileNotFoundException
+     * @throws IOException
      */
     public static void main(String[] args) throws FileNotFoundException, IOException
     {
-        String[] input = readInput(INPUT_FILE_NAME);
-        List<Entry<char[][], String>> cases = getCases(input);
-        search(cases);
-
-        //map test cases
-        //for each test case
-        // search 1st char
-        // search all 8 directions
+        String[] input_array = readInput(INPUT_FILE_NAME);
+        List<Entry<char[][], String>> case_list = getCases(input_array);
+        searchAllCases(case_list);
     }
 
+    /**
+     * Inputs the file into raw data.
+     *
+     * @param file_name Name of input file.
+     *
+     * @return Raw string data.
+     *
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
     private static String[] readInput(String file_name) throws FileNotFoundException, IOException
     {
         BufferedReader buffered_reader = new BufferedReader(new FileReader(new File(file_name)));
@@ -69,6 +78,13 @@ public class Main
         return input_list.toArray(new String[input_list.size()]);
     }
 
+    /**
+     * Maps the raw data into data structure for separate cases.
+     *
+     * @param input Raw input data.
+     *
+     * @return List of cases containing grid and word to match.
+     */
     private static List<Entry<char[][], String>> getCases(String[] input)
     {
         List<Entry<char[][], String>> case_list = new ArrayList();
@@ -102,22 +118,129 @@ public class Main
         return case_list;
     }
 
-    private static void search(List<Entry<char[][], String>> cases)
+    /**
+     * Prints the matches for all cases.
+     *
+     * @param case_list List of all cases.
+     */
+    private static void searchAllCases(List<Entry<char[][], String>> case_list)
     {
-        int case_number = 1;
 
-        for (Entry<char[][], String> i : cases)
+        for (int i = 0; i < case_list.size(); i++)
         {
-            System.out.println("Case: " + case_number);
-            for (char[] j : i.getKey())
-            {
-                System.out.println(Arrays.toString(j));
-            }
-            System.out.println("Word: " + i.getValue());
-            System.out.println();
-
+            System.out.println("Case " + (i + 1) + ": " + searchGrid(case_list.get(i)));
         }
 
+    }
+
+    /**
+     * Search the whole grid for matching for the word.
+     *
+     * @param test_case Test case to be searched.
+     *
+     * @return Count of all matches for the whole grid.
+     */
+    private static int searchGrid(Entry<char[][], String> test_case)
+    {
+        int count = 0;
+        char[][] grid = test_case.getKey();
+        for (int i = 0; i < grid.length; i++)
+        {
+            for (int j = 0; j < grid[i].length; j++)
+            {
+                count += searchAllDirections(grid, i, j, test_case.getValue());
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Search word on all 8 directions.
+     *
+     * @param grid         Word grid.
+     * @param row_index    Current row index.
+     * @param column_index Current column index.
+     * @param word         Word to match.
+     *
+     * @return Count of matches on all directions.
+     */
+    private static int searchAllDirections(char[][] grid, int row_index, int column_index, String word)
+    {
+        int count = 0;
+        if (searchOneDirection(grid, row_index, column_index, word, 0, -1, -1))
+        {
+            count++;
+        }
+        if (searchOneDirection(grid, row_index, column_index, word, 0, -1, 0))
+        {
+            count++;
+        }
+        if (searchOneDirection(grid, row_index, column_index, word, 0, -1, 1))
+        {
+            count++;
+        }
+        if (searchOneDirection(grid, row_index, column_index, word, 0, 0, -1))
+        {
+            count++;
+        }
+        if (searchOneDirection(grid, row_index, column_index, word, 0, 0, 1))
+        {
+            count++;
+        }
+        if (searchOneDirection(grid, row_index, column_index, word, 0, 1, -1))
+        {
+            count++;
+        }
+        if (searchOneDirection(grid, row_index, column_index, word, 0, 1, 0))
+        {
+            count++;
+        }
+        if (searchOneDirection(grid, row_index, column_index, word, 0, 1, 1))
+        {
+            count++;
+        }
+        return count;
+    }
+
+    /**
+     * Search word on 1 direction.
+     *
+     * @param grid             Word grid.
+     * @param row_index        Current row index.
+     * @param column_index     Current column index.
+     * @param word             Matching word.
+     * @param word_index       Current index on word.
+     * @param row_increment    Row to be incremented.
+     * @param column_increment Column to be incremented.
+     *
+     * @return True if word matches.
+     */
+    public static boolean searchOneDirection(char[][] grid, int row_index, int column_index, String word, int word_index, int row_increment, int column_increment)
+    {
+        if (row_index < 0 || row_index >= grid.length)
+        {
+            return false;
+        }
+        else if (column_index < 0 || column_index >= grid[row_index].length)
+        {
+            return false;
+        }
+        else if (word_index < 0 || word_index >= word.length())
+        {
+            return false;
+        }
+        else if (word.charAt(word_index) != grid[row_index][column_index])
+        {
+            return false;
+        }
+        else if (word_index == word.length() - 1)
+        {
+            return true;
+        }
+        else
+        {
+            return searchOneDirection(grid, row_index + row_increment, column_index + column_increment, word, word_index + 1, row_increment, column_increment);
+        }
     }
 
 }
